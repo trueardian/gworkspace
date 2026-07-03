@@ -56,11 +56,13 @@ type Client struct {
 
 // TokenStore persists Google Workspace OAuth refresh tokens keyed by owner.
 // Implement this interface to provide your own storage backend.
-// GetRefreshToken must return ErrNotConnected when no token exists
-// for the owner. postgres.TokenStore in this module satisfies it.
+// GetRefreshToken and DeleteRefreshToken must return ErrNotConnected when no
+// token exists for the owner. postgres.TokenStore and firestore.TokenStore in
+// this module satisfy it.
 type TokenStore interface {
 	GetRefreshToken(ctx context.Context, owner string) (string, error)
 	SaveRefreshToken(ctx context.Context, owner, refreshToken string) error
+	DeleteRefreshToken(ctx context.Context, owner string) error
 }
 
 // NewClient builds a Client. cfg must carry the Google endpoint and the combined
@@ -125,6 +127,16 @@ func (c *Client) Connect(ctx context.Context, owner, code string) error {
 		return err
 	}
 	return c.tokenStore.SaveRefreshToken(ctx, owner, refreshToken)
+}
+
+// Disconnect undoes Connect: it removes the owner's stored refresh token, so
+// TokenSource returns ErrNotConnected until the owner completes a new OAuth
+// flow. Returns ErrNotConnected when the owner was not connected.
+//
+// Only this side forgets the token — the grant itself stays listed on the
+// owner's Google Account until they revoke it there or Google expires it.
+func (c *Client) Disconnect(ctx context.Context, owner string) error {
+	return c.tokenStore.DeleteRefreshToken(ctx, owner)
 }
 
 // TokenSource resolves the owner's refresh token and returns an oauth2.TokenSource

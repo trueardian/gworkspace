@@ -112,6 +112,26 @@ func (s *TokenStore) SaveRefreshToken(ctx context.Context, owner, refreshToken s
 	return nil
 }
 
+// DeleteRefreshToken removes the owner's token document. The Exists
+// precondition makes Firestore reject deleting a missing document instead of
+// succeeding silently, so absence maps to ErrNotConnected like GetRefreshToken.
+// Firestore reports the failed precondition as NotFound; FailedPrecondition is
+// matched too in case the server ever reports it as such.
+func (s *TokenStore) DeleteRefreshToken(ctx context.Context, owner string) error {
+	ref, err := s.doc(owner)
+	if err != nil {
+		return err
+	}
+	_, err = ref.Delete(ctx, firestore.Exists)
+	if code := status.Code(err); code == codes.NotFound || code == codes.FailedPrecondition {
+		return gworkspace.ErrNotConnected
+	}
+	if err != nil {
+		return fmt.Errorf("gworkspace/firestore: delete refresh token: %w", err)
+	}
+	return nil
+}
+
 // doc resolves owner to its document reference, rejecting owners that cannot
 // be Firestore document IDs.
 func (s *TokenStore) doc(owner string) (*firestore.DocumentRef, error) {

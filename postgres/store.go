@@ -98,6 +98,22 @@ func (s *TokenStore) SaveRefreshToken(ctx context.Context, owner, refreshToken s
 	return nil
 }
 
+// DeleteRefreshToken removes the owner's refresh token, returning
+// ErrNotConnected when there was none to remove — matching GetRefreshToken.
+func (s *TokenStore) DeleteRefreshToken(ctx context.Context, owner string) error {
+	tag, err := s.db.Exec(ctx,
+		`DELETE FROM gworkspace_tokens WHERE owner = $1`,
+		owner,
+	)
+	if err != nil {
+		return fmt.Errorf("gworkspace/postgres: delete refresh token: %w", err)
+	}
+	if tag.RowsAffected() == 0 {
+		return gworkspace.ErrNotConnected
+	}
+	return nil
+}
+
 // Migrate runs the embedded migrations against the injected connection. It is
 // exposed for consumers that prefer to migrate explicitly rather than via
 // WithAutoMigrate. Idempotent.

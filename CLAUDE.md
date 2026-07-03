@@ -28,8 +28,9 @@ owner-scoped, consumer-defined interface).
 ## Struktur
 
 ```
-client.go       Client, TokenStore, ErrNotConnected, ErrMissingScopes, checkScopes,
-                  NewClient, AuthURL/Exchange/Connect, TokenSource
+client.go       Client, TokenStore (Get/Save/DeleteRefreshToken), ErrNotConnected,
+                  ErrMissingScopes, checkScopes, NewClient,
+                  AuthURL/Exchange/Connect/Disconnect, TokenSource
 calendar.go     Calendar, CalendarRequiredScopes, Event/EventQuery/EventInput,
                   NewCalendar, GetEvents, AddEvent
 gmail.go        Gmail, GmailRequiredScopes, Message/Label, NewGmail, ReadMessages,

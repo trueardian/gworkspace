@@ -26,6 +26,14 @@ func (f *fakeTokenStore) SaveRefreshToken(_ context.Context, owner, refreshToken
 	return nil
 }
 
+func (f *fakeTokenStore) DeleteRefreshToken(_ context.Context, owner string) error {
+	if f.err != nil {
+		return f.err
+	}
+	delete(f.saved, owner)
+	return nil
+}
+
 // TokenSource must surface ErrNotConnected from the store so domain clients
 // (Calendar, Gmail, Contacts) can propagate it to callers without touching
 // the network.
@@ -34,5 +42,15 @@ func TestTokenSourceNotConnected(t *testing.T) {
 	_, err := c.TokenSource(context.Background(), "owner")
 	if !errors.Is(err, ErrNotConnected) {
 		t.Errorf("TokenSource err = %v, want ErrNotConnected", err)
+	}
+}
+
+// Disconnect must surface ErrNotConnected from the store so callers can tell
+// "nothing to disconnect" apart from infrastructure failures.
+func TestDisconnectNotConnected(t *testing.T) {
+	c := NewClient(&fakeTokenStore{err: ErrNotConnected}, &oauth2.Config{})
+	err := c.Disconnect(context.Background(), "owner")
+	if !errors.Is(err, ErrNotConnected) {
+		t.Errorf("Disconnect err = %v, want ErrNotConnected", err)
 	}
 }

@@ -22,7 +22,7 @@ high-throughput.** Lihat "Design Decisions".
 
 ```
 client.go       Client, TokenStore, ErrNotConnected/ErrMissingScopes, checkScopes,
-                NewClient, OAuth (AuthURL/Exchange/Connect), TokenSource
+                NewClient, OAuth (AuthURL/Exchange/Connect/Disconnect), TokenSource
 calendar.go     Calendar, CalendarRequiredScopes, Event/EventQuery/EventInput,
                 NewCalendar, GetEvents, AddEvent
 gmail.go        Gmail, GmailRequiredScopes, Message/Label, MessageQuery/LabelQuery,
@@ -66,8 +66,9 @@ client := gworkspace.NewClient(store, cfg)
 //	store := firestore.NewTokenStore(fs)
 
 // Connect flow (sekali per user):
-url := client.AuthURL(state)           // arahkan user ke sini
-err = client.Connect(ctx, owner, code) // di callback
+url := client.AuthURL(state)            // arahkan user ke sini
+err = client.Connect(ctx, owner, code)  // di callback
+err = client.Disconnect(ctx, owner)     // hapus refresh token tersimpan
 
 // Pemakaian:
 cal, err := gworkspace.NewCalendar(client)
