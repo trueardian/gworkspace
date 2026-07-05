@@ -54,3 +54,31 @@ func TestDisconnectNotConnected(t *testing.T) {
 		t.Errorf("Disconnect err = %v, want ErrNotConnected", err)
 	}
 }
+
+// Connected maps the store's three outcomes for the UI status check: a stored
+// token is true, ErrNotConnected is false-without-error, anything else is an
+// infrastructure error.
+func TestConnected(t *testing.T) {
+	tests := []struct {
+		name    string
+		store   *fakeTokenStore
+		want    bool
+		wantErr bool
+	}{
+		{name: "connected", store: &fakeTokenStore{token: "refresh-xyz"}, want: true},
+		{name: "not connected", store: &fakeTokenStore{err: ErrNotConnected}, want: false},
+		{name: "store failure", store: &fakeTokenStore{err: errors.New("boom")}, wantErr: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewClient(tt.store, &oauth2.Config{})
+			got, err := c.Connected(context.Background(), "owner")
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("Connected err = %v, wantErr %v", err, tt.wantErr)
+			}
+			if got != tt.want {
+				t.Errorf("Connected = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

@@ -139,6 +139,21 @@ func (c *Client) Disconnect(ctx context.Context, owner string) error {
 	return c.tokenStore.DeleteRefreshToken(ctx, owner)
 }
 
+// Connected reports whether owner currently has a stored refresh token — i.e.
+// has completed Connect and not since Disconnected. It only consults the
+// TokenStore; it does not verify the grant against Google (a revoked-at-Google
+// token still reads as connected until its first failing use).
+func (c *Client) Connected(ctx context.Context, owner string) (bool, error) {
+	_, err := c.tokenStore.GetRefreshToken(ctx, owner)
+	if errors.Is(err, ErrNotConnected) {
+		return false, nil
+	}
+	if err != nil {
+		return false, fmt.Errorf("get token for owner %s: %w", owner, err)
+	}
+	return true, nil
+}
+
 // TokenSource resolves the owner's refresh token and returns an oauth2.TokenSource
 // that refreshes access tokens on demand. Returns ErrNotConnected
 // when the owner has not connected.
