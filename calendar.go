@@ -69,6 +69,7 @@ type EventQuery struct {
 }
 
 const defaultCalendarID = "primary"
+
 // GetEvents returns events for the owner matching q, ordered by start time.
 // Returns ErrNotConnected if the owner has not connected.
 func (c *Calendar) GetEvents(ctx context.Context, owner string, q EventQuery) ([]Event, error) {

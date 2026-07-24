@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	peoplev1 "google.golang.org/api/people/v1"
 	"google.golang.org/api/option"
+	peoplev1 "google.golang.org/api/people/v1"
 )
 
 // ContactsRequiredScopes are the OAuth scopes needed for all Contacts methods.
