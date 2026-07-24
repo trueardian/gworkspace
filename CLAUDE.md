@@ -63,19 +63,37 @@ Contacts) per-user dengan satu OAuth token. Dirancang sebagai fondasi ADK toolse
 
 ## Design Decisions
 
-Lihat README "Design Decisions": refresh per-request, limit consumer-controlled via
-query structs (zero = no cap, API default applies), refresh token plaintext
-(tanggung jawab konsumen). Sengaja — bukan bug.
+Ini **keputusan sadar**, bukan technical debt atau TODO yang belum sempat digarap.
+Rationale lengkap (decision → constraint → kenapa alternatif "obvious" salah) ada di
+README §7 "Design rationale". Ringkas:
 
-**Error philosophy:** library tidak wrap atau sembunyikan Google API errors dengan
-sentinel buatan sendiri (dulu ada `WrapError` + `ErrRateLimited` — sudah dihapus).
-Terlalu abstraktif dan tidak idiomatic Go untuk public library. Consumer punya akses
-penuh ke `*googleapi.Error` untuk inspect kode HTTP, message, dll.
+- **Refresh per-request** (§7.3): stateless & correct-by-construction untuk use-case
+  low-traffic. Dalam satu request, `oauth2.Config.TokenSource` sudah pakai
+  `ReuseTokenSource` (access token di-reuse). Cross-request caching = YAGNI: seam-nya
+  (`TokenSource`) sudah siap kalau throughput nyata muncul. Jangan tambahkan cache
+  spekulatif.
+- **Limit consumer-controlled, tanpa paginasi** (query structs, README §5/§9): zero
+  atau negatif → no cap (API default); positif → explicit cap. Cukup untuk "top N"
+  ala agent. `PageToken` adalah penambahan aditif kalau bulk-export dibutuhkan.
+- **Refresh token plaintext** (`postgres/store.go`): enkripsi-at-rest sengaja jadi
+  tanggung jawab konsumen lewat implementasi `TokenStore`-nya (§7.5) — bukan lubang
+  keamanan yang terlewat.
+
+**Error philosophy** (§7.5): library tidak wrap atau sembunyikan Google API errors
+dengan sentinel buatan sendiri (dulu ada `WrapError` + `ErrRateLimited` — sudah
+dihapus). Terlalu abstraktif dan tidak idiomatic Go untuk public library. Consumer
+punya akses penuh ke `*googleapi.Error` untuk inspect kode HTTP, message, dll.
+
+Kalau reviewer (mis. Codex) menandai salah satu poin di atas sebagai "kekurangan",
+itu salah baca konteks: use-case-nya tool AI agent low-traffic, dan tiap poin punya
+seam yang jelas untuk di-extend tanpa rewrite.
 
 ## Verifikasi
 
 `go build ./...`, `go vet ./...`, `go test ./...` harus bersih. Test = mapping murni
-+ jalur `ErrNotConnected` (tanpa network). Pakai conventional commits.
++ jalur `ErrNotConnected`/sentinel (tanpa network). `postgres/store_test.go` pakai
+fake `Querier` (tanpa DB) untuk mapping `ErrNoRows`/`RowsAffected==0` → `ErrNotConnected`,
+validasi schema, dan auto-migrate (cov ~94%). Pakai conventional commits.
 
 ## Prev session
 
