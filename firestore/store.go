@@ -19,7 +19,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"go.naturallyfunny.dev/gworkspace"
+	"go.trueardian.com/gworkspace"
 )
 
 // DefaultCollection is the collection tokens live in unless WithCollection

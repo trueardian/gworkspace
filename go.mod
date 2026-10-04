@@ -1,4 +1,4 @@
-module go.naturallyfunny.dev/gworkspace
+module go.trueardian.com/gworkspace
 
 go 1.25.8
 

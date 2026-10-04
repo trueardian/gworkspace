@@ -1,9 +1,9 @@
 # gworkspace — catatan untuk Claude
 
 Domain client tunggal untuk Google Workspace (Calendar + Gmail + Contacts), satu
-OAuth refresh token per user. Library generik `go.naturallyfunny.dev/gworkspace`,
-dipakai sebagai tool AI agent (traffic rendah). Blueprint: `go.naturallyfunny.dev/spotify`
-(pola `TokenStore` + OAuth per-user) dan `go.naturallyfunny.dev/tuya` (domain client
+OAuth refresh token per user. Library generik `go.trueardian.com/gworkspace`,
+dipakai sebagai tool AI agent (traffic rendah). Blueprint: `go.trueardian.com/spotify`
+(pola `TokenStore` + OAuth per-user) dan `go.trueardian.com/tuya` (domain client
 owner-scoped, consumer-defined interface).
 
 ## Prinsip yang mengikat (non-negotiable)
@@ -105,7 +105,7 @@ Perubahan yang sudah di-commit:
    `client.go` (root package); `New` di-rename ke `NewClient`; `auth/postgres/` →
    `postgres/` (root-level subpackage); `auth/` directory dihapus.
 2. **`TokenStore` dan `ErrMissingScopes` sekarang di root package** (`client.go`).
-   Import `go.naturallyfunny.dev/gworkspace/auth` tidak diperlukan lagi.
+   Import `go.trueardian.com/gworkspace/auth` tidak diperlukan lagi.
 3. Consumer usage: `c := gworkspace.NewClient(store, cfg)` lalu pass `c` ke
    `NewCalendar`/`NewGmail`/`NewContacts`.
 

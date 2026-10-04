@@ -1,6 +1,6 @@
 # gworkspace
 
-[![Go Reference](https://pkg.go.dev/badge/go.naturallyfunny.dev/gworkspace.svg)](https://pkg.go.dev/go.naturallyfunny.dev/gworkspace)
+[![Go Reference](https://pkg.go.dev/badge/go.trueardian.com/gworkspace.svg)](https://pkg.go.dev/go.trueardian.com/gworkspace)
 [![Go 1.25](https://img.shields.io/badge/go-1.25-00ADD8?logo=go&logoColor=white)](go.mod)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
@@ -30,7 +30,7 @@ if errors.Is(err, gworkspace.ErrNotConnected) {
 ## 1. Install
 
 ```sh
-go get go.naturallyfunny.dev/gworkspace
+go get go.trueardian.com/gworkspace
 ```
 
 Requires **Go 1.25+** — the module's declared toolchain (`go 1.25` in `go.mod`), the
